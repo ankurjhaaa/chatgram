@@ -41,12 +41,15 @@
         <?php
             if(isset($_POST['login'])){
                 $email = $_POST['email'];
-                $_SESSION['email'] = $email ;
+                
                 $password = $_POST['password'];
 
-                $call_user_detail = mysqli_query($connect,"SELECT * FROM users where email='$email' AND password='$password'");
-                if($call_user_detail){
+                $count_user = mysqli_num_rows(mysqli_query($connect,"SELECT * FROM users where email='$email' AND password='$password'"));
+                if($count_user > 0 ){
+                    $_SESSION['email'] = $email ;
                     echo "<script>window.location.href='index.php';</script>";
+                } else {
+                    echo "faileddddddddddddddddd";
                 }
             }
         ?>
