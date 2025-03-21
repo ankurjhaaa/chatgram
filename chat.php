@@ -4,6 +4,8 @@
 if (!isset($_SESSION['email'])) {
     echo "<script>window.location.href='login.php';</script>";
 }
+
+$email = $_SESSION['email'];
 ?>
 <?php
 if (isset($_GET['user'])) {
@@ -11,6 +13,13 @@ if (isset($_GET['user'])) {
     $call_user_name = mysqli_query($connect, "SELECT * FROM users WHERE id='$id'");
     $user_name = mysqli_fetch_assoc($call_user_name);
 }
+
+?>
+<?php
+$call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
+$self_id = mysqli_fetch_assoc($call_self_id);
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,14 +60,43 @@ if (isset($_GET['user'])) {
 
                 <!-- Messages (Scrollable) -->
                 <div class="flex-1 p-4 overflow-y-auto space-y-4 flex flex-col-reverse mt-16 mb-16">
-                    <div class="flex flex-col items-end">
-                        <div class="bg-blue-500 text-white p-3 rounded-lg w-fit max-w-xs">Hello!</div>
-                        <span class="text-xs text-gray-500 mt-1">10:30 AM</span>
-                    </div>
-                    <div class="flex flex-col items-start">
-                        <div class="bg-gray-300 p-3 rounded-lg w-fit max-w-xs">Hi! How are you?</div>
-                        <span class="text-xs text-gray-500 mt-1">10:32 AM</span>
-                    </div>
+                    <?php
+                    $sender_id = $self_id['id'];
+                    $reciver_id = $user_name['id'];
+                    $call_send_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$sender_id' AND reciver_id='$reciver_id'");
+                    while ($send_msg = mysqli_fetch_array($call_send_msg)) { ?>
+                        <div class="flex flex-col items-end mt-2">
+                            <div class="bg-blue-500 text-white p-3 rounded-lg w-fit max-w-xs"><?= $send_msg['message'] ?>
+                            </div>
+                            <span class="text-xs text-gray-500 mt-1">
+                            <?php
+                                $timestamp = $send_msg['time'];
+                                $formatted_time = date("h:i A", strtotime($timestamp));
+                                echo $formatted_time;
+                                ?>
+                            </span>
+                        </div>
+                    <?php } ?>
+
+
+                    <?php
+                    $sender_id = $self_id['id'];
+                    $reciver_id = $user_name['id'];
+                    $call_recive_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$reciver_id' AND reciver_id='$sender_id'");
+                    while ($recive_msg = mysqli_fetch_array($call_recive_msg)) { ?>
+                        <div class="flex flex-col items-start">
+                            <div class="bg-gray-300 p-3 rounded-lg w-fit max-w-xs">Hi! How are you?</div>
+                            <span class="text-xs text-gray-500 mt-1">
+                                <?php
+                                $timestamp = $recive_msg['time'];
+                                $formatted_time = date("h:i A", strtotime($timestamp));
+                                echo $formatted_time;
+                                ?>
+                            </span>
+                        </div>
+                    <?php } ?>
+
+
                 </div>
 
                 <!-- Input Box (Fixed) -->
@@ -89,9 +127,13 @@ if (isset($_GET['user'])) {
                     </div>
                 </form>
                 <?php
-                    if(isset($_POST['msg_sent'])){
-                        $msg = $_POST['msg'];
-                    }
+                if (isset($_POST['msg_sent'])) {
+                    $msg = $_POST['msg'];
+                    $sender_id = $self_id['id'];
+                    $reciver_id = $user_name['id'];
+
+                    $insert_msg = mysqli_query($connect, "INSERT INTO chat (reciver_id,sender_id,message) VALUE ('$reciver_id','$sender_id','$msg')");
+                }
 
                 ?>
 
