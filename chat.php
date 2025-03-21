@@ -12,13 +12,18 @@ if (isset($_GET['user'])) {
     $id = $_GET['user'];
     $call_user_name = mysqli_query($connect, "SELECT * FROM users WHERE id='$id'");
     $user_name = mysqli_fetch_assoc($call_user_name);
+
 }
 
 ?>
 <?php
 $call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
 $self_id = mysqli_fetch_assoc($call_self_id);
-
+?>
+<?php
+// $user_id = $user_name['id'];
+// $call_dp = mysqli_query($connect, "SELECT * FROM users WHERE id='$id'");
+// $dp = mysqli_fetch_assoc($call_dp);
 
 ?>
 <!DOCTYPE html>
@@ -49,8 +54,12 @@ $self_id = mysqli_fetch_assoc($call_self_id);
 
                 <!-- Header (Fixed) -->
                 <div class="bg-white p-4 border-b flex items-center shadow-md fixed top-0 left-0 right-0 md:relative">
-                    <a href="index.php" class="md:hidden p-2">🔙</a>
-                    <img src="https://i.pravatar.cc/42" class="w-12 h-12 rounded-full mr-3">
+                    <button onclick="history.back()" class="text-white text-xl mr-4">
+                    <i class="fa-solid fa-arrow-left text-black"></i> <!-- Font Awesome Icon -->
+                    </button>
+                    <img src="dp/<?php if ($user_name['dp'] == "") {
+                        echo "defaultUser.webp";
+                    } ?>" class="w-12 h-12 rounded-full mr-3">
                     <div>
                         <p class="font-semibold text-lg"><?= $user_name['first_name'] ?> <?= $user_name['last_name'] ?>
                         </p>
@@ -63,13 +72,13 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     <?php
                     $sender_id = $self_id['id'];
                     $reciver_id = $user_name['id'];
-                    $call_send_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$sender_id' AND reciver_id='$reciver_id'");
+                    $call_send_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$sender_id' AND reciver_id='$reciver_id' ORDER BY time DESC");
                     while ($send_msg = mysqli_fetch_array($call_send_msg)) { ?>
                         <div class="flex flex-col items-end mt-2">
                             <div class="bg-blue-500 text-white p-3 rounded-lg w-fit max-w-xs"><?= $send_msg['message'] ?>
                             </div>
                             <span class="text-xs text-gray-500 mt-1">
-                            <?php
+                                <?php
                                 $timestamp = $send_msg['time'];
                                 $formatted_time = date("h:i A", strtotime($timestamp));
                                 echo $formatted_time;
@@ -82,7 +91,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     <?php
                     $sender_id = $self_id['id'];
                     $reciver_id = $user_name['id'];
-                    $call_recive_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$reciver_id' AND reciver_id='$sender_id'");
+                    $call_recive_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$reciver_id' AND reciver_id='$sender_id' ORDER BY time DESC");
                     while ($recive_msg = mysqli_fetch_array($call_recive_msg)) { ?>
                         <div class="flex flex-col items-start">
                             <div class="bg-gray-300 p-3 rounded-lg w-fit max-w-xs">Hi! How are you?</div>
@@ -133,6 +142,9 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     $reciver_id = $user_name['id'];
 
                     $insert_msg = mysqli_query($connect, "INSERT INTO chat (reciver_id,sender_id,message) VALUE ('$reciver_id','$sender_id','$msg')");
+                    if ($insert_msg) {
+                        echo "<script>window.location.href='';</script>";
+                    }
                 }
 
                 ?>
