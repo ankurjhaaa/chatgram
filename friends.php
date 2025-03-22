@@ -81,6 +81,7 @@ $email = $_SESSION['email'];
                     <img src="dp/<?php echo empty($user['dp']) ? "defaultUser.webp" : $user['dp']; ?>"
                         class="w-12 h-12 rounded-full mr-3">
                     <div>
+                        <h1 class="text-xl font-medium text-gray-800"><?= $user['first_name'] ?> <?= $user['last_name'] ?></h1>
                         <p class="text-sm text-gray-500">
                             <?= (isset($last_message['message']) && strlen($last_message['message']) > 25)
                                 ? substr($last_message['message'], 0, 25) . "..."

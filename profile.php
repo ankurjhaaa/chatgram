@@ -1,5 +1,8 @@
 <?php
 include_once "db.php";
+if (!isset($_SESSION['email'])) {
+    echo "<script>window.location.href='login.php';</script>";
+}
 
 
 $email = $_SESSION['email'];

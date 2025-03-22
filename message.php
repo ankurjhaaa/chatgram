@@ -76,7 +76,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     </button>
                 </div>
 
-                
+
                 <div id="profilePopup"
                     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[1000]">
 
@@ -178,13 +178,16 @@ $self_id = mysqli_fetch_assoc($call_self_id);
 
                         <!-- Message Input -->
                         <div class="relative flex-1">
+                            <input type="file" id="fileInput" class="hidden"> <!-- Hidden File Input -->
+
                             <input type="text" placeholder="Type a message..." name="msg" id="messageInput"
                                 class="w-full p-3 px-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-100 shadow-md">
 
                             <!-- Paperclip (Attachment) Icon -->
-                            <i
-                                class="fas fa-paperclip absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 cursor-pointer transition duration-300"></i>
+                            <i class="fas fa-paperclip absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 cursor-pointer transition duration-300"
+                                onclick="document.getElementById('fileInput').click()"></i>
                         </div>
+
 
                         <!-- Send Button -->
                         <button type="submit"

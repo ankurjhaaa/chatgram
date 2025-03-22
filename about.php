@@ -1,3 +1,10 @@
+<?php include_once "db.php"; ?>
+
+<?php
+if (!isset($_SESSION['email'])) {
+    echo "<script>window.location.href='login.php';</script>";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
