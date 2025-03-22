@@ -6,27 +6,18 @@ if (!isset($_SESSION['email'])) {
 }
 
 $email = $_SESSION['email'];
-?>
-<?php
+$call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
+$self_id = mysqli_fetch_assoc($call_self_id);
+$sender_id = $self_id['id'];
+
 if (isset($_GET['user'])) {
     $id = $_GET['user'];
     $call_user_name = mysqli_query($connect, "SELECT * FROM users WHERE id='$id'");
     $user_name = mysqli_fetch_assoc($call_user_name);
-    $user_dp = $user_name['dp'];
-
+    $reciver_id = $user_name['id'];
 }
+?>
 
-?>
-<?php
-$call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
-$self_id = mysqli_fetch_assoc($call_self_id);
-?>
-<?php
-// $user_id = $user_name['id'];
-// $call_dp = mysqli_query($connect, "SELECT * FROM users WHERE id='$id'");
-// $dp = mysqli_fetch_assoc($call_dp);
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,51 +26,43 @@ $self_id = mysqli_fetch_assoc($call_self_id);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"
-        crossorigin="anonymous"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body class="bg-gray-100">
 
     <div class="flex h-screen">
-        <!-- Friends List (Default for Mobile) -->
+        <!-- Friends List -->
         <div
             class="w-full md:w-1/4 bg-white p-4 border-r h-screen md:block <?php echo isset($_GET['user']) ? 'hidden' : ''; ?>">
             <?php include_once 'friends.php'; ?>
         </div>
 
-        <!-- Chat Section (Hidden by Default on Mobile) -->
+        <!-- Chat Section -->
         <div class="w-full md:w-3/4 h-screen md:block">
+            <div class="w-full flex flex-col h-screen">
 
-            <div class="w-full md:flex-1 flex flex-col h-screen">
-
-                <!-- Header (Fixed) -->
+                <!-- Header -->
                 <div class="bg-white p-4 border-b flex items-center shadow-md fixed top-0 left-0 right-0 md:relative">
-                    <button onclick="history.back()" class="text-white text-xl mr-4">
-                        <i class="fa-solid fa-arrow-left text-black"></i> <!-- Back Button Icon -->
+                    <button onclick="history.back()" class="text-black text-xl mr-4">
+                        <i class="fa-solid fa-arrow-left"></i>
                     </button>
-
-                    <!-- Profile Image (Click to Open Popup) -->
                     <img src="dp/<?php echo empty($user_name['dp']) ? 'defaultUser.webp' : $user_name['dp']; ?>"
                         class="w-12 h-12 rounded-full mr-3 cursor-pointer" onclick="openProfilePopup()">
 
                     <div class="flex-1">
                         <p class="font-semibold text-lg"><?= $user_name['first_name'] ?> <?= $user_name['last_name'] ?>
                         </p>
-                        <p class="text-sm text-green-500">Online</p>
+                        <p id="typingStatus" class="text-sm text-green-500">Online</p>
                     </div>
-
-                    <!-- Refresh Button -->
-                    <button onclick="refreshPage()" class="text-xl text-gray-700 hover:text-blue-500 transition">
-                        <i class="fa-solid fa-rotate-right"></i> <!-- Refresh Icon -->
-                    </button>
+                    <!-- <button onclick="refreshPage()" class="text-xl text-gray-700 hover:text-blue-500">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button> -->
                 </div>
-
-
+                <!-- user detail popup  -->
                 <div id="profilePopup"
-                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[1000]">
-
+                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
                     <div class="bg-white rounded-lg p-6 w-80 shadow-lg relative">
 
                         <!-- Close Button -->
@@ -90,7 +73,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                         <!-- Profile Image in Popup -->
                         <div class="flex justify-center">
                             <img src="dp/<?php echo empty($user_name['dp']) ? 'defaultUser.webp' : $user_name['dp']; ?>"
-                                class="w-24 h-24 rounded-full border-4 border-blue-500 shadow-md">
+                                class="w-50 h-70 rounded-md border-4 border-blue-500 shadow-md">
                         </div>
 
                         <h2 class="text-xl font-bold text-center mt-4">
@@ -100,19 +83,23 @@ $self_id = mysqli_fetch_assoc($call_self_id);
 
                         <!-- Profile Details -->
                         <div class="mt-4 space-y-2 text-gray-700">
+                            <p><i class="fa-solid fa-envelope"></i> <strong>Email:</strong>
+                                <?= $user_name['email'] ?>
+                            </p>
                             <p><i class="fa-solid fa-phone"></i> <strong>Mobile:</strong> +91
                                 <?= $user_name['mobile'] ?>
                             </p>
                             <p><i class="fa-solid fa-calendar"></i> <strong>DOB:</strong>
-                                <?= date('Y-m-d', strtotime($user_name['dob'])) ?></p>
+                                <?php if($user_name['dob'] != 0){
+                                    $dob =  date('Y-m-d', strtotime($user_name['dob']));
+                                    echo "$dob";
+                                } ?></p>
                             <p><i class="fa-solid fa-map-marker-alt"></i> <strong>Location:</strong>
                                 <?= $user_name['location'] ?></p>
                         </div>
                     </div>
                 </div>
-
-
-                <!-- JavaScript for Modal & Refresh -->
+                <!-- popup ka javascript -->
                 <script>
                     function openProfilePopup() {
                         document.getElementById('profilePopup').classList.remove('hidden');
@@ -121,119 +108,102 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     function closeProfilePopup() {
                         document.getElementById('profilePopup').classList.add('hidden');
                     }
-
-                    function refreshPage() {
-                        location.reload();
-                    }
                 </script>
 
 
-                <!-- Messages (Scrollable) -->
-                <div class="flex-1 p-4 overflow-y-auto space-y-2 flex flex-col-reverse mt-20 mb-16">
-                    <?php
-                    $sender_id = $self_id['id'];
-                    $reciver_id = $user_name['id'];
-                    $fetch_messages = mysqli_query(
-                        $connect,
-                        "SELECT * FROM chat 
-        WHERE (sender_id='$sender_id' AND reciver_id='$reciver_id') 
-        OR (sender_id='$reciver_id' AND reciver_id='$sender_id') 
-        ORDER BY time DESC"
-                    );
 
-                    while ($msg = mysqli_fetch_array($fetch_messages)) {
-                        $is_sender = ($msg['sender_id'] == $sender_id);
-                        ?>
-                        <div class="flex <?= $is_sender ? 'justify-end' : 'justify-start' ?>">
-                            <div class="max-w-[80%] md:max-w-[60%] px-4 py-2 rounded-lg shadow-md relative 
-                <?= $is_sender ? 'bg-green-700 text-white' : 'bg-gray-400 text-black' ?>">
-
-                                <p class="break-words"><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
-
-                                <span class="block text-[10px] font-bold mt-1 text-right pr-2
-                    <?= $is_sender ? 'text-gray-400' : 'text-gray-300' ?>">
-                                    <?= date("h:i A", strtotime($msg['time'])) ?>
-                                </span>
-                            </div>
-                        </div>
-                    <?php } ?>
+                <!-- Messages -->
+                <div id="chatBox"
+                    class="flex-1 p-4 space-y-2 flex flex-col-reverse mt-20 mb-16 overflow-y-auto overflow-x-hidden">
+                    <!-- Messages will be loaded here via AJAX -->
                 </div>
 
 
 
-
-
-
-
-                <!-- Input Box (Fixed) -->
-                <form action="" method="post" id="chatForm">
+                <!-- Input Box -->
+                <form id="chatForm">
                     <div
                         class="bg-white p-3 border-t shadow-lg fixed bottom-0 left-0 right-0 md:relative flex items-center gap-2">
-
-                        <!-- Emoji Button -->
-                        <button type="button"
-                            class="p-2 text-gray-600 hover:text-yellow-500 transition duration-300 ease-in-out focus:outline-none">
-                            <i class="fas fa-smile text-xl"></i>
-                        </button>
-
-                        <!-- Message Input -->
-                        <div class="relative flex-1">
-                            <input type="file" id="fileInput" class="hidden"> <!-- Hidden File Input -->
-
-                            <input type="text" placeholder="Type a message..." name="msg" id="messageInput"
-                                class="w-full p-3 px-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-100 shadow-md">
-
-                            <!-- Paperclip (Attachment) Icon -->
-                            <i class="fas fa-paperclip absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 cursor-pointer transition duration-300"
-                                onclick="document.getElementById('fileInput').click()"></i>
-                        </div>
-
-
-                        <!-- Send Button -->
+                        <input type="text" id="messageInput" name="msg" placeholder="Type a message..."
+                            class="w-full p-3 border rounded-md focus:ring-2 bg-gray-100">
                         <button type="submit"
-                            class="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 shadow-md transform transition-all duration-300"
-                            name="msg_sent">
+                            class="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 shadow-md">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </form>
 
-                <script>
-                    document.getElementById("messageInput").addEventListener("keypress", function (event) {
-                        if (event.key === "Enter") {
-                            event.preventDefault(); // डिफ़ॉल्ट Enter behavior को रोकना
-                            document.getElementById("chatForm").submit(); // फॉर्म सबमिट करना
-                        }
-                    });
-                </script>
+            </div>
+        </div>
 
-                <?php
-                if (isset($_POST['msg_sent'])) {
-                    $msg = $_POST['msg'];
-                    $sender_id = $self_id['id'];
-                    $reciver_id = $user_name['id'];
-                    date_default_timezone_set("Asia/Kolkata");
-                    $time = date("Y-m-d H:i:s");
+    </div>
 
+    <!-- jQuery & AJAX Script -->
+    <script>
+        $(document).ready(function () {
+            let chatBox = $("#chatBox");
+            let isUserScrolling = false;
 
-                    if ($msg != '') {
-                        $insert_msg = mysqli_query($connect, "INSERT INTO chat (reciver_id,sender_id,message,time) VALUE ('$reciver_id','$sender_id','$msg','$time')");
-                        if ($insert_msg) {
-                            echo "<script>window.location.href='';</script>";
+            function loadMessages(scrollToBottom = false) {
+                $.ajax({
+                    url: "load_messages.php",
+                    type: "POST",
+                    data: { sender_id: <?= $sender_id ?>, reciver_id: <?= $reciver_id ?> },
+                    success: function (data) {
+                        let previousHeight = chatBox[0].scrollHeight; // पुराने मैसेज लोड करने से पहले ऊंचाई
+
+                        chatBox.html(data);
+
+                        if (!isUserScrolling || scrollToBottom) {
+                            chatBox.scrollTop(chatBox[0].scrollHeight); // केवल तभी स्क्रॉल जब यूजर स्क्रॉल नहीं कर रहा
+                        } else {
+                            let newHeight = chatBox[0].scrollHeight;
+                            chatBox.scrollTop(chatBox.scrollTop() + (newHeight - previousHeight)); // पुरानी पोजीशन बनाए रखो
                         }
                     }
+                });
+            }
+
+            loadMessages(true); // लोडिंग के समय हमेशा नीचे स्क्रॉल
+            setInterval(loadMessages, 1000);
+
+            $("#chatForm").submit(function (event) {
+                event.preventDefault();
+                let message = $("#messageInput").val();
+                if (message.trim() !== "") {
+                    $.ajax({
+                        url: "send_message.php",
+                        type: "POST",
+                        data: { sender_id: <?= $sender_id ?>, reciver_id: <?= $reciver_id ?>, msg: message },
+                        success: function () {
+                            $("#messageInput").val('');
+                            loadMessages(true); // मैसेज भेजने के बाद नीचे स्क्रॉल करो
+                        }
+                    });
                 }
+            });
 
-                ?>
+            // जब यूजर स्क्रॉल करता है, तो ऑटो-स्क्रॉल को रोक दो
+            chatBox.on("scroll", function () {
+                if (chatBox.scrollTop() + chatBox.innerHeight() < chatBox[0].scrollHeight - 50) {
+                    isUserScrolling = true;
+                } else {
+                    isUserScrolling = false;
+                }
+            });
 
-                <!-- Font Awesome CDN -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+            function checkTypingStatus() {
+                $.post("check_typing.php", { sender_id: <?= $reciver_id ?>, reciver_id: <?= $sender_id ?> }, function (data) {
+                    $("#typingStatus").html(data);
+                });
+            }
+            setInterval(checkTypingStatus, 1000);
+        });
+
+    </script>
 
 
-            </div>
 
-        </div>
-    </div>
 
 </body>
 
