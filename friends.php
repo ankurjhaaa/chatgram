@@ -81,10 +81,12 @@ $email = $_SESSION['email'];
                     <img src="dp/<?php echo empty($user['dp']) ? "defaultUser.webp" : $user['dp']; ?>"
                         class="w-12 h-12 rounded-full mr-3">
                     <div>
-                        <p class="font-semibold text-lg"><?= $user['first_name'] . " " . $user['last_name'] ?></p>
                         <p class="text-sm text-gray-500">
-                            <?= $last_message['message'] ?? 'No messages yet'; ?>
+                            <?= (isset($last_message['message']) && strlen($last_message['message']) > 25)
+                                ? substr($last_message['message'], 0, 25) . "..."
+                                : ($last_message['message'] ?? 'No messages yet'); ?>
                         </p>
+
                     </div>
                 </div>
             </a>
@@ -95,8 +97,9 @@ $email = $_SESSION['email'];
 </div>
 
 <!-- Chat Popup -->
-<div id="chatPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+<div id="chatPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[1000]">
     <div class="bg-white w-full max-w-lg h-4/5 rounded-lg shadow-lg p-6 flex flex-col">
+
         <!-- Popup Header -->
         <div class="flex justify-between items-center border-b pb-4">
             <h2 class="text-xl font-bold">Find People</h2>
@@ -115,23 +118,23 @@ $email = $_SESSION['email'];
             <?php
             $call_chats = mysqli_query($connect, "SELECT * FROM users WHERE email !='$email'");
             while ($chat = mysqli_fetch_array($call_chats)) {
-                // $user_id = ($chat['sender_id'] == $email) ? $chat['reciver_id'] : $chat['sender_id'];
-                // $user_info = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM users WHERE id='$user_id'"));
                 ?>
                 <a href="message.php?user=<?= $chat['id'] ?>">
                     <div class="chat-item flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer">
                         <img src="dp/<?= ($chat['dp'] == "") ? "defaultUser.webp" : $chat['dp'] ?>"
                             class="w-12 h-12 rounded-full mr-3">
                         <div>
-                            <p class="font-semibold text-lg"><?= $chat['first_name'] ?>     <?= $chat['last_name'] ?></p>
+                            <p class="font-semibold text-lg"><?= $chat['first_name'] ?> <?= $chat['last_name'] ?></p>
                             <p class="text-sm text-gray-500">Tap to open chat</p>
                         </div>
                     </div>
                 </a>
             <?php } ?>
         </div>
+
     </div>
 </div>
+
 
 <script>
     function toggleDropdown() {

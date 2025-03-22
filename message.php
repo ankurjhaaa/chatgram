@@ -37,6 +37,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"
         crossorigin="anonymous"></script>
+
 </head>
 
 <body class="bg-gray-100">
@@ -49,7 +50,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
         </div>
 
         <!-- Chat Section (Hidden by Default on Mobile) -->
-        <div class="w-full md:flex-1 h-screen md:block">
+        <div class="w-full md:w-3/4 h-screen md:block">
 
             <div class="w-full md:flex-1 flex flex-col h-screen">
 
@@ -75,9 +76,10 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     </button>
                 </div>
 
-                <!-- Profile Popup Modal -->
+                
                 <div id="profilePopup"
-                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[1000]">
+
                     <div class="bg-white rounded-lg p-6 w-80 shadow-lg relative">
 
                         <!-- Close Button -->
@@ -109,6 +111,7 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     </div>
                 </div>
 
+
                 <!-- JavaScript for Modal & Refresh -->
                 <script>
                     function openProfilePopup() {
@@ -126,29 +129,40 @@ $self_id = mysqli_fetch_assoc($call_self_id);
 
 
                 <!-- Messages (Scrollable) -->
-                <div class="flex-1 p-4 overflow-y-auto space-y-4 flex flex-col-reverse mt-16 mb-16">
+                <div class="flex-1 p-4 overflow-y-auto space-y-2 flex flex-col-reverse mt-20 mb-16">
                     <?php
                     $sender_id = $self_id['id'];
                     $reciver_id = $user_name['id'];
                     $fetch_messages = mysqli_query(
                         $connect,
-                        "SELECT * FROM chat WHERE (sender_id='$sender_id' AND reciver_id='$reciver_id') OR (sender_id='$reciver_id' AND reciver_id='$sender_id') ORDER BY time DESC"
+                        "SELECT * FROM chat 
+        WHERE (sender_id='$sender_id' AND reciver_id='$reciver_id') 
+        OR (sender_id='$reciver_id' AND reciver_id='$sender_id') 
+        ORDER BY time DESC"
                     );
-                    while ($msg = mysqli_fetch_array($fetch_messages)) {
 
+                    while ($msg = mysqli_fetch_array($fetch_messages)) {
                         $is_sender = ($msg['sender_id'] == $sender_id);
                         ?>
-                        <div class="flex flex-col <?= $is_sender ? 'items-end' : 'items-start' ?> mt-2">
-                            <div
-                                class="<?= $is_sender ? 'bg-blue-500 text-white' : 'bg-gray-300' ?> p-3 rounded-lg w-fit max-w-xs">
-                                <?= htmlspecialchars($msg['message']) ?>
+                        <div class="flex <?= $is_sender ? 'justify-end' : 'justify-start' ?>">
+                            <div class="max-w-[80%] md:max-w-[60%] px-4 py-2 rounded-lg shadow-md relative 
+                <?= $is_sender ? 'bg-green-700 text-white' : 'bg-gray-400 text-black' ?>">
+
+                                <p class="break-words"><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
+
+                                <span class="block text-[10px] font-bold mt-1 text-right pr-2
+                    <?= $is_sender ? 'text-gray-400' : 'text-gray-300' ?>">
+                                    <?= date("h:i A", strtotime($msg['time'])) ?>
+                                </span>
                             </div>
-                            <span class="text-xs text-gray-500 mt-1">
-                                <?= date("h:i A", strtotime($msg['time'])) ?>
-                            </span>
                         </div>
                     <?php } ?>
                 </div>
+
+
+
+
+
 
 
                 <!-- Input Box (Fixed) -->
@@ -182,7 +196,6 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                 </form>
 
                 <script>
-                    // Enter key से मैसेज भेजने का फंक्शन
                     document.getElementById("messageInput").addEventListener("keypress", function (event) {
                         if (event.key === "Enter") {
                             event.preventDefault(); // डिफ़ॉल्ट Enter behavior को रोकना
