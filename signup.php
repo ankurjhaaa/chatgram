@@ -23,7 +23,7 @@
                 <label class="block text-gray-700 font-semibold mb-1">First Name</label>
                 <input type="text" name="first_name"
                     class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    placeholder="Enter first name" required>
+                    placeholder="Enter first name">
             </div>
 
             <!-- Last Name -->
@@ -31,7 +31,7 @@
                 <label class="block text-gray-700 font-semibold mb-1">Last Name</label>
                 <input type="text" name="last_name"
                     class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    placeholder="Enter last name" required>
+                    placeholder="Enter last name">
             </div>
 
             <!-- Email -->
@@ -39,7 +39,7 @@
                 <label class="block text-gray-700 font-semibold mb-1">Email</label>
                 <input type="email" name="email"
                     class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    placeholder="Enter email" required>
+                    placeholder="Enter email">
             </div>
 
             <!-- Mobile -->
@@ -47,14 +47,14 @@
                 <label class="block text-gray-700 font-semibold mb-1">Mobile</label>
                 <input type="tel" name="mobile"
                     class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    placeholder="Enter mobile number" required>
+                    placeholder="Enter mobile number">
             </div>
 
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Password</label>
                 <input type="tel" name="password"
                     class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    placeholder="Enter mobile number" required>
+                    placeholder="Enter mobile number">
             </div>
 
             <!-- Signup Button -->
@@ -81,11 +81,39 @@ if (isset($_POST['signup'])) {
     $password = $_POST['password'];
 
     // Simple validation (For demo purposes)
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($mobile)) {
-        die("All fields are required!");
+    if (empty($first_name) || empty($last_name) || empty($email) || empty($mobile) || empty($password)) {
+        die("
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: 'Please fill out all required fields.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        });
+    </script>';");
     }
 
-    $insert_user = mysqli_query($connect,"INSERT INTO users (first_name,last_name,email,mobile,password) VALUE ('$first_name','$last_name','$email','$mobile','$password')");
+    $insert_user = mysqli_query($connect, "INSERT INTO users (first_name,last_name,email,mobile,password) VALUE ('$first_name','$last_name','$email','$mobile','$password')");
+    if ($insert_user) {
+        echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        Swal.fire({
+            title: 'Signup Successful!',
+            text: 'Your account has been created successfully.',
+            icon: 'success',
+            confirmButtonText: 'Login Now',
+            confirmButtonColor: '#3085d6',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'login.php'; // Replace with your login page URL
+            }
+        });
+    </script>";
+    }
 
 }
 ?>
