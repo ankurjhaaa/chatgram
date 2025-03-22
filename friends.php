@@ -44,7 +44,7 @@ $email = $_SESSION['email'];
         <?php
         $call_user = mysqli_query($connect, "SELECT * FROM users WHERE email != '$email'");
         while ($user = mysqli_fetch_array($call_user)) { ?>
-            <a href="chat.php?user=<?= $user['id'] ?>">
+            <a href="message.php?user=<?= $user['id'] ?>">
                 <div class="user-item flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer">
                     <img src="dp/<?php if ($user['dp'] == "") {
                         echo "defaultUser.webp";
