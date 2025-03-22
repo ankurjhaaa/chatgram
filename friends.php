@@ -5,10 +5,11 @@ if (!isset($_SESSION['email'])) {
 }
 $email = $_SESSION['email'];
 ?>
+
 <!-- Font Awesome (for icons) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
 
-<div class="w-full h-screen bg-white p-4">
+<div class="w-full bg-white p-4">
     <div class="flex items-center justify-between">
         <a href="index.php" class="text-xl font-bold mb-4">ChatGram</a>
 
@@ -51,41 +52,46 @@ $email = $_SESSION['email'];
     </div>
 
     <!-- User List -->
-    <div class="space-y-4" id="userList">
+    <div class="space-y-4 overflow-y-auto max-h-[600px]  rounded-lg p-2 [&::-webkit-scrollbar]:hidden" id="userList">
         <?php
-        $call_user = mysqli_query($connect, "SELECT * FROM users WHERE email != '$email'");
-        while ($user = mysqli_fetch_array($call_user)) { ?>
+        $call_user = mysqli_query($connect, "SELECT DISTINCT 
+        CASE 
+            WHEN sender_id = (SELECT id FROM users WHERE email = '$email') THEN reciver_id 
+            ELSE sender_id 
+        END AS chat_user_id 
+        FROM chat 
+        WHERE sender_id = (SELECT id FROM users WHERE email = '$email') 
+           OR reciver_id = (SELECT id FROM users WHERE email = '$email')");
+
+        while ($chat = mysqli_fetch_array($call_user)) {
+            $chat_user_id = $chat['chat_user_id'];
+
+            $user_query = mysqli_query($connect, "SELECT * FROM users WHERE id = '$chat_user_id'");
+            $user = mysqli_fetch_assoc($user_query);
+
+            $call_send_msg = mysqli_query($connect, "SELECT * FROM chat 
+            WHERE (sender_id='$chat_user_id' AND reciver_id=(SELECT id FROM users WHERE email='$email')) 
+               OR (sender_id=(SELECT id FROM users WHERE email='$email') AND reciver_id='$chat_user_id')
+            ORDER BY time DESC LIMIT 1");
+
+            $last_message = mysqli_fetch_array($call_send_msg);
+            ?>
             <a href="message.php?user=<?= $user['id'] ?>">
                 <div class="user-item flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer">
-                    <img src="dp/<?php if ($user['dp'] == "") {
-                        echo "defaultUser.webp";
-                    } else {
-                        $user_dp = $user['dp'];
-                        echo "$user_dp";
-                    } ?>" class="w-12 h-12 rounded-full mr-3">
+                    <img src="dp/<?php echo empty($user['dp']) ? "defaultUser.webp" : $user['dp']; ?>"
+                        class="w-12 h-12 rounded-full mr-3">
                     <div>
-                        <?php
-                        $call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
-                        $self_id = mysqli_fetch_assoc($call_self_id);
-                        $reciver_id = $self_id['id'];
-
-                        $chat_id = $user['id'];
-
-                        $call_send_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$chat_id' AND reciver_id='$reciver_id'ORDER BY time DESC LIMIT 1");
-                        $last_message = mysqli_fetch_array($call_send_msg);
-                        ?>
-                        <p class="font-semibold text-lg"><?= $user['first_name'] ?>     <?= $user['last_name'] ?></p>
+                        <p class="font-semibold text-lg"><?= $user['first_name'] . " " . $user['last_name'] ?></p>
                         <p class="text-sm text-gray-500">
-                            <?php
-                            $last_msg = $last_message['message'] ?? '';
-                            echo $last_msg;
-                            ?>
+                            <?= $last_message['message'] ?? 'No messages yet'; ?>
                         </p>
                     </div>
                 </div>
             </a>
+
         <?php } ?>
     </div>
+
 </div>
 
 <!-- Chat Popup -->
@@ -93,7 +99,7 @@ $email = $_SESSION['email'];
     <div class="bg-white w-full max-w-lg h-4/5 rounded-lg shadow-lg p-6 flex flex-col">
         <!-- Popup Header -->
         <div class="flex justify-between items-center border-b pb-4">
-            <h2 class="text-xl font-bold">All Chats</h2>
+            <h2 class="text-xl font-bold">Find People</h2>
             <button onclick="toggleChatPopup()" class="text-gray-600 hover:text-gray-800">
                 <i class="fas fa-times text-2xl"></i>
             </button>
@@ -105,7 +111,7 @@ $email = $_SESSION['email'];
             onkeyup="searchChats()">
 
         <!-- Chat List -->
-        <div class="flex-1 overflow-y-auto mt-4 space-y-4 px-2" id="chatList">
+        <div class="flex-1 overflow-y-auto mt-4 space-y-4" id="chatList">
             <?php
             $call_chats = mysqli_query($connect, "SELECT * FROM users WHERE email !='$email'");
             while ($chat = mysqli_fetch_array($call_chats)) {

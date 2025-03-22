@@ -132,10 +132,10 @@ $self_id = mysqli_fetch_assoc($call_self_id);
                     $reciver_id = $user_name['id'];
                     $fetch_messages = mysqli_query(
                         $connect,
-                        "SELECT * FROM chat WHERE (sender_id='$sender_id' AND reciver_id='$reciver_id') OR (sender_id='$reciver_id' AND reciver_id='$sender_id') ORDER BY time ASC"
-                    ); 
+                        "SELECT * FROM chat WHERE (sender_id='$sender_id' AND reciver_id='$reciver_id') OR (sender_id='$reciver_id' AND reciver_id='$sender_id') ORDER BY time DESC"
+                    );
                     while ($msg = mysqli_fetch_array($fetch_messages)) {
-                        
+
                         $is_sender = ($msg['sender_id'] == $sender_id);
                         ?>
                         <div class="flex flex-col <?= $is_sender ? 'items-end' : 'items-start' ?> mt-2">
@@ -152,41 +152,59 @@ $self_id = mysqli_fetch_assoc($call_self_id);
 
 
                 <!-- Input Box (Fixed) -->
-                <form action="" method="post">
+                <form action="" method="post" id="chatForm">
                     <div
-                        class="bg-white p-2 border-t flex items-center shadow-lg fixed bottom-0 left-0 right-0 md:relative">
+                        class="bg-white p-3 border-t shadow-lg fixed bottom-0 left-0 right-0 md:relative flex items-center gap-2">
+
                         <!-- Emoji Button -->
-                        <button class="p-3 text-gray-500 hover:text-blue-500">
-                            <i class="fas fa-smile text-2xl"></i>
+                        <button type="button"
+                            class="p-2 text-gray-600 hover:text-yellow-500 transition duration-300 ease-in-out focus:outline-none">
+                            <i class="fas fa-smile text-xl"></i>
                         </button>
 
                         <!-- Message Input -->
-                        <div class="relative flex-1 mx-3">
-                            <input type="text" placeholder="Type a message..." name="msg"
-                                class="w-full p-4 pl-12 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-100">
+                        <div class="relative flex-1">
+                            <input type="text" placeholder="Type a message..." name="msg" id="messageInput"
+                                class="w-full p-3 px-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-100 shadow-md">
 
                             <!-- Paperclip (Attachment) Icon -->
                             <i
-                                class="fas fa-paperclip absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 cursor-pointer"></i>
+                                class="fas fa-paperclip absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 cursor-pointer transition duration-300"></i>
                         </div>
 
                         <!-- Send Button -->
-                        <button
-                            class="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all duration-300"
+                        <button type="submit"
+                            class="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 shadow-md transform transition-all duration-300"
                             name="msg_sent">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </form>
+
+                <script>
+                    // Enter key से मैसेज भेजने का फंक्शन
+                    document.getElementById("messageInput").addEventListener("keypress", function (event) {
+                        if (event.key === "Enter") {
+                            event.preventDefault(); // डिफ़ॉल्ट Enter behavior को रोकना
+                            document.getElementById("chatForm").submit(); // फॉर्म सबमिट करना
+                        }
+                    });
+                </script>
+
                 <?php
                 if (isset($_POST['msg_sent'])) {
                     $msg = $_POST['msg'];
                     $sender_id = $self_id['id'];
                     $reciver_id = $user_name['id'];
+                    date_default_timezone_set("Asia/Kolkata");
+                    $time = date("Y-m-d H:i:s");
 
-                    $insert_msg = mysqli_query($connect, "INSERT INTO chat (reciver_id,sender_id,message) VALUE ('$reciver_id','$sender_id','$msg')");
-                    if ($insert_msg) {
-                        echo "<script>window.location.href='';</script>";
+
+                    if ($msg != '') {
+                        $insert_msg = mysqli_query($connect, "INSERT INTO chat (reciver_id,sender_id,message,time) VALUE ('$reciver_id','$sender_id','$msg','$time')");
+                        if ($insert_msg) {
+                            echo "<script>window.location.href='';</script>";
+                        }
                     }
                 }
 
