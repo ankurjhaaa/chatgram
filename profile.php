@@ -6,10 +6,10 @@ $email = $_SESSION['email'];
 $call_user_detail = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
 $user_detail = mysqli_fetch_array($call_user_detail);
 
-// अगर प्रोफाइल पिक्चर सेट है तो उसे दिखाओ वरना डिफ़ॉल्ट इमेज दिखाओ
-$profile_pic = !empty($user_detail['dp']) ? "dp/" . $user_detail['dp'] : "https://i.pravatar.cc/100";
 
-// प्रोफाइल अपडेट करने का कोड
+$profile_pic = !empty($user_detail['dp']) ? "dp/" . $user_detail['dp'] : "dp/defaultUser.webp";
+
+
 if (isset($_POST['save'])) {
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
@@ -27,7 +27,7 @@ if (isset($_POST['save'])) {
     }
 }
 
-// प्रोफाइल पिक्चर अपलोड करने का कोड
+
 if (isset($_FILES['profile_pic'])) {
     $file_name = time() . "_" . $_FILES['profile_pic']['name'];
     $file_tmp = $_FILES['profile_pic']['tmp_name'];

@@ -10,11 +10,12 @@ $email = $_SESSION['email'];
 
 <div class="w-full h-screen bg-white p-4">
     <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold mb-4">Chats</h2>
-        
+        <a href="index.php" class="text-xl font-bold mb-4">ChatGram</a>
+
         <!-- Dropdown Menu -->
         <div class="relative inline-block text-left">
-            <button onclick="toggleDropdown()" class="bg-gray-300 p-1 h-8 w-10 rounded-md flex items-center justify-center focus:outline-none">
+            <button onclick="toggleDropdown()"
+                class="bg-gray-300 p-1 h-8 w-10 rounded-md flex items-center justify-center focus:outline-none">
                 <i class="fas fa-bars text-xl"></i> <!-- Font Awesome Icon -->
             </button>
             <div id="dropdownMenu" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg hidden">
@@ -33,9 +34,9 @@ $email = $_SESSION['email'];
 
     <!-- Search Bar -->
     <div class="mb-4">
-        <input type="text" id="searchInput" placeholder="Search for a user..." 
-               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-               onkeyup="searchUsers()">
+        <input type="text" id="searchInput" placeholder="Search for a user..."
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onkeyup="searchUsers()">
     </div>
 
     <!-- User List -->
@@ -45,10 +46,32 @@ $email = $_SESSION['email'];
         while ($user = mysqli_fetch_array($call_user)) { ?>
             <a href="chat.php?user=<?= $user['id'] ?>">
                 <div class="user-item flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer">
-                    <img src="https://i.pravatar.cc/40" class="w-12 h-12 rounded-full mr-3">
+                    <img src="dp/<?php if ($user['dp'] == "") {
+                        echo "defaultUser.webp";
+                    } else {
+                        $user_dp = $user['dp'];
+                        echo "$user_dp";
+                    } ?>" class="w-12 h-12 rounded-full mr-3">
                     <div>
-                        <p class="font-semibold text-lg"><?= $user['first_name'] ?> <?= $user['last_name'] ?></p>
-                        <p class="text-sm text-gray-500">Hey, how are you?</p>
+                        <?php
+                        $call_self_id = mysqli_query($connect, "SELECT * FROM users WHERE email='$email'");
+                        $self_id = mysqli_fetch_assoc($call_self_id);
+                        $reciver_id = $self_id['id'];
+
+                        $chat_id = $user['id'];
+
+                        $call_send_msg = mysqli_query($connect, "SELECT * FROM chat WHERE sender_id='$chat_id' AND reciver_id='$reciver_id'ORDER BY time DESC LIMIT 1");
+                        $last_message = mysqli_fetch_array($call_send_msg);
+
+
+                        ?>
+                        <p class="font-semibold text-lg"><?= $user['first_name'] ?>     <?= $user['last_name'] ?></p>
+                        <p class="text-sm text-gray-500">
+                            <?php
+                            $last_msg = $last_message['message'] ?? '';
+                            echo $last_msg;
+                            ?>
+                        </p>
                     </div>
                 </div>
             </a>
