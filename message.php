@@ -192,12 +192,7 @@ if (isset($_GET['user'])) {
                 }
             });
 
-            function checkTypingStatus() {
-                $.post("check_typing.php", { sender_id: <?= $reciver_id ?>, reciver_id: <?= $sender_id ?> }, function (data) {
-                    $("#typingStatus").html(data);
-                });
-            }
-            setInterval(checkTypingStatus, 1000);
+            
         });
 
     </script>

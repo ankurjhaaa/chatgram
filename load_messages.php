@@ -1,4 +1,5 @@
-<?php include "db.php";
+<?php 
+include "db.php";
 $sender_id = $_POST['sender_id'];
 $reciver_id = $_POST['reciver_id'];
 
@@ -14,3 +15,4 @@ while ($msg = mysqli_fetch_assoc($result)) {
     echo "</div></div>";
 }
 ?>
+
