@@ -23,15 +23,16 @@ if (!isset($_SESSION['email'])) {
 <body class="bg-gray-100">
 
     <!-- ✅ Navbar -->
-    <nav class="bg-gray-800 p-4 text-white shadow-md">
-        <div class="max-w-4xl mx-auto flex items-center">
-            <!-- ✅ Back Button (Left Side) -->
-            <a href="javascript:history.back()" class="text-xl mr-4">
-                <i class="fas fa-arrow-left"></i> <!-- ✅ Now Icon is Visible -->
-            </a>
-            <h2 class="text-lg font-semibold">About Us</h2>
-        </div>
-    </nav>
+    <nav class="bg-gray-800 p-4 text-white shadow-md sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto flex items-center">
+        <!-- ✅ Back Button (Left Side) -->
+        <a href="javascript:history.back()" class="text-xl mr-4">
+            <i class="fas fa-arrow-left"></i> <!-- ✅ Now Icon is Visible -->
+        </a>
+        <h2 class="text-lg font-semibold">About Us</h2>
+    </div>
+</nav>
+
 
     <!-- ✅ About Section -->
     <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6 mt-6 flex flex-col md:flex-row">
@@ -62,7 +63,7 @@ if (!isset($_SESSION['email'])) {
 
             <!-- ✅ Direct Chat Button -->
             <div class="mt-6">
-                <a href="chat.php" class="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-900 transition">
+                <a href="message.php?user=2" class="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-900 transition">
                     <i class="fas fa-comments mr-2"></i> Start Chat
                 </a>
             </div>

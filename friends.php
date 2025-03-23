@@ -30,7 +30,7 @@ $email = $_SESSION['email'];
                     <a href="profile.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-user mr-2"></i> Profile
                     </a>
-                    <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <a href="setting.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-cog mr-2"></i> Settings
                     </a>
                     <a href="about.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
@@ -117,7 +117,7 @@ $email = $_SESSION['email'];
         <!-- Chat List -->
         <div class="flex-1 overflow-y-auto mt-4 space-y-4" id="chatList">
             <?php
-            $call_chats = mysqli_query($connect, "SELECT * FROM users WHERE email !='$email'");
+            $call_chats = mysqli_query($connect, "SELECT * FROM users WHERE email !='$email' AND is_public=1");
             while ($chat = mysqli_fetch_array($call_chats)) {
                 ?>
                 <a href="message.php?user=<?= $chat['id'] ?>">

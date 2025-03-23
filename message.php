@@ -90,10 +90,11 @@ if (isset($_GET['user'])) {
                                 <?= $user_name['mobile'] ?>
                             </p>
                             <p><i class="fa-solid fa-calendar"></i> <strong>DOB:</strong>
-                                <?php if($user_name['dob'] != 0){
-                                    $dob =  date('Y-m-d', strtotime($user_name['dob']));
+                                <?php if ($user_name['dob'] != 0) {
+                                    $dob = date('Y-m-d', strtotime($user_name['dob']));
                                     echo "$dob";
-                                } ?></p>
+                                } ?>
+                            </p>
                             <p><i class="fa-solid fa-map-marker-alt"></i> <strong>Location:</strong>
                                 <?= $user_name['location'] ?></p>
                         </div>
@@ -121,17 +122,102 @@ if (isset($_GET['user'])) {
 
 
                 <!-- Input Box -->
-                <form id="chatForm">
+                <!-- Image Preview Popup -->
+                <div id="imagePopup"
+                    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+                    <div class="bg-white p-4 rounded-lg shadow-lg relative w-80">
+                        <button id="closePopup"
+                            class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl">&times;</button>
+                        <img id="popupImg" src="#" class="w-full h-auto rounded-lg">
+                        <p class="text-center mt-2 text-sm text-gray-500">Selected Image</p>
+                    </div>
+                </div>
+
+                <form id="chatForm" method="post" enctype="multipart/form-data">
                     <div
                         class="bg-white p-3 border-t shadow-lg fixed bottom-0 left-0 right-0 md:relative flex items-center gap-2">
+                        <label for="imageInput" class="cursor-pointer">
+                            <i class="fas fa-image text-2xl text-gray-500 hover:text-blue-500"></i>
+                            <input type="file" id="imageInput" name="image" accept="image/*" class="hidden">
+                        </label>
                         <input type="text" id="messageInput" name="msg" placeholder="Type a message..."
                             class="w-full p-3 border rounded-md focus:ring-2 bg-gray-100">
-                        <button type="submit"
+                        <button type="submit" name="msg"
                             class="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 shadow-md">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </form>
+                <?php
+                // Check if a message was submitted
+                // if (isset($_POST['msg'])) {
+                //     // $sender_id = $_POST['sender_id']; // Adjust according to your session or data
+                //     // $receiver_id = $_POST['reciver_id']; // Adjust according to your session or data
+                //     // $message = mysqli_real_escape_string($connect, $_POST['msg']);
+                
+
+                //     $image = $_FILES['image']['name'];
+                //     $tmp_image = $_FILES['image']['tmp_name'];
+                //     move_uploaded_file($tmp_image, "dp/$image");
+
+                //     $query = mysqli_query($connect, "INSERT INTO chat (sender_id, receiver_id, image, time) VALUES ('$sender_id', '$reciver_id', '$image', NOW())");
+
+                // }
+                ?>
+
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(document).ready(function () {
+                        $("#imageInput").change(function (event) {
+                            let reader = new FileReader();
+                            reader.onload = function () {
+                                $("#popupImg").attr("src", reader.result);
+                                $("#imagePopup").removeClass("hidden"); // Popup Show करो
+                            };
+                            reader.readAsDataURL(event.target.files[0]);
+                        });
+
+                        $("#closePopup").click(function () {
+                            $("#imagePopup").addClass("hidden"); // Popup Close करो
+                            $("#imageInput").val(""); // Image Reset करो
+                        });
+
+                        $("#chatForm").on("submit", function (e) {
+                            e.preventDefault();
+                            let formData = new FormData(this);
+                            formData.append("sendMessage", true);
+                            formData.append("receiver_id", "<?= $_GET['user']; ?>");
+
+                            $.ajax({
+                                url: "sendMessage.php",
+                                type: "POST",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function () {
+                                    $("#messageInput").val("");
+                                    $("#imageInput").val("");
+                                    $("#imagePopup").addClass("hidden"); // Popup बंद करो
+                                    loadMessages();
+                                }
+                            });
+                        });
+
+                        function loadMessages() {
+                            $.ajax({
+                                url: "loadMessages.php?receiver_id=<?= $_GET['user']; ?>",
+                                type: "GET",
+                                success: function (data) {
+                                    $("#chatContainer").html(data);
+                                }
+                            });
+                        }
+
+                        setInterval(loadMessages, 2000);
+                    });
+                </script>
+
 
             </div>
         </div>
@@ -192,7 +278,7 @@ if (isset($_GET['user'])) {
                 }
             });
 
-            
+
         });
 
     </script>
