@@ -51,31 +51,17 @@ $email = $_SESSION['email'];
             onkeyup="searchUsers()">
     </div>
 
-    <!-- User List jisne last time mesage kiya h -->
+    <!-- User List -->
     <div class="space-y-4 overflow-y-auto max-h-[600px]  rounded-lg p-2 [&::-webkit-scrollbar]:hidden" id="userList">
         <?php
-        $call_user = mysqli_query($connect, "SELECT chat_user_id, users.first_name, users.last_name, users.dp, 
-       (SELECT message FROM chat 
-        WHERE (sender_id = chat_user_id AND reciver_id = (SELECT id FROM users WHERE email = '$email')) 
-           OR (sender_id = (SELECT id FROM users WHERE email = '$email') AND reciver_id = chat_user_id) 
-        ORDER BY time DESC LIMIT 1) AS last_message,
-       (SELECT time FROM chat 
-        WHERE (sender_id = chat_user_id AND reciver_id = (SELECT id FROM users WHERE email = '$email')) 
-           OR (sender_id = (SELECT id FROM users WHERE email = '$email') AND reciver_id = chat_user_id) 
-        ORDER BY time DESC LIMIT 1) AS last_chat_time
-FROM users
-JOIN (
-    SELECT DISTINCT 
+        $call_user = mysqli_query($connect, "SELECT DISTINCT 
         CASE 
             WHEN sender_id = (SELECT id FROM users WHERE email = '$email') THEN reciver_id 
             ELSE sender_id 
-        END AS chat_user_id
-    FROM chat
-    WHERE sender_id = (SELECT id FROM users WHERE email = '$email') 
-       OR reciver_id = (SELECT id FROM users WHERE email = '$email')
-) AS chat_users ON users.id = chat_users.chat_user_id
-ORDER BY last_chat_time DESC
-");
+        END AS chat_user_id 
+        FROM chat 
+        WHERE sender_id = (SELECT id FROM users WHERE email = '$email') 
+           OR reciver_id = (SELECT id FROM users WHERE email = '$email')");
 
         while ($chat = mysqli_fetch_array($call_user)) {
             $chat_user_id = $chat['chat_user_id'];
@@ -95,8 +81,7 @@ ORDER BY last_chat_time DESC
                     <img src="dp/<?php echo empty($user['dp']) ? "defaultUser.webp" : $user['dp']; ?>"
                         class="w-12 h-12 rounded-full mr-3">
                     <div>
-                        <h1 class="text-xl font-medium text-gray-800"><?= $user['first_name'] ?>     <?= $user['last_name'] ?>
-                        </h1>
+                        <h1 class="text-xl font-medium text-gray-800"><?= $user['first_name'] ?> <?= $user['last_name'] ?></h1>
                         <p class="text-sm text-gray-500">
                             <?= (isset($last_message['message']) && strlen($last_message['message']) > 25)
                                 ? substr($last_message['message'], 0, 25) . "..."
@@ -140,7 +125,7 @@ ORDER BY last_chat_time DESC
                         <img src="dp/<?= ($chat['dp'] == "") ? "defaultUser.webp" : $chat['dp'] ?>"
                             class="w-12 h-12 rounded-full mr-3">
                         <div>
-                            <p class="font-semibold text-lg"><?= $chat['first_name'] ?>     <?= $chat['last_name'] ?></p>
+                            <p class="font-semibold text-lg"><?= $chat['first_name'] ?> <?= $chat['last_name'] ?></p>
                             <p class="text-sm text-gray-500">Tap to open chat</p>
                         </div>
                     </div>
@@ -180,33 +165,4 @@ ORDER BY last_chat_time DESC
             chats[i].parentElement.style.display = name.includes(input) ? "" : "none";
         }
     }
-</script>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    let isScrolling = false;
-
-    function fetchFriendsList() {
-        if (!isScrolling) {
-            $.ajax({
-                url: "friends.php", // यही पेज फिर से लोड होगा लेकिन बिना पूरा reload किए
-                method: "GET",
-                data: { fetch: "users" }, // Ajax में पहचानने के लिए एक parameter भेजा
-                success: function (response) {
-                    let newContent = $(response).find("#userList").html(); 
-                    $("#userList").html(newContent); // सिर्फ यूज़र लिस्ट को अपडेट करेगा
-                }
-            });
-        }
-    }
-
-    // Auto-Refresh हर 5 सेकंड में
-    setInterval(fetchFriendsList, 5000);
-
-    // जब यूजर स्क्रॉल करेगा, तो Auto-Refresh रुकेगा
-    document.getElementById("userList").addEventListener("scroll", function () {
-        isScrolling = true;
-        clearTimeout(scrollTimeout);
-        var scrollTimeout = setTimeout(() => { isScrolling = false; }, 2000);
-    });
 </script>
