@@ -48,8 +48,10 @@ if (isset($_GET['user'])) {
                     <button onclick="history.back()" class="text-black text-xl mr-4">
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <img src="dp/<?php echo empty($user_name['dp']) ? 'defaultUser.webp' : $user_name['dp']; ?>"
-                        class="w-12 h-12 rounded-full mr-3 cursor-pointer" onclick="openProfilePopup()">
+                    <img src="dp/<?php echo empty($user_name['dp']) ? 'defaultUser.webp' : htmlspecialchars($user_name['dp']); ?>"
+                        class="w-12 h-12 rounded-full border object-cover shadow-sm mr-3 cursor-pointer" loading="lazy"
+                        onerror="this.onerror=null; this.src='dp/defaultUser.webp';" onclick="openProfilePopup()">
+
 
                     <div class="flex-1">
                         <p class="font-semibold text-lg"><?= $user_name['first_name'] ?> <?= $user_name['last_name'] ?>
@@ -118,6 +120,7 @@ if (isset($_GET['user'])) {
                     class="flex-1 p-4 space-y-2 flex flex-col-reverse mt-20 mb-16 overflow-y-auto overflow-x-hidden">
                     <!-- Messages will be loaded here via AJAX -->
                 </div>
+                
 
 
 
@@ -159,9 +162,9 @@ if (isset($_GET['user'])) {
                 //     $image = $_FILES['image']['name'];
                 //     $tmp_image = $_FILES['image']['tmp_name'];
                 //     move_uploaded_file($tmp_image, "dp/$image");
-
+                
                 //     $query = mysqli_query($connect, "INSERT INTO chat (sender_id, receiver_id, image, time) VALUES ('$sender_id', '$reciver_id', '$image', NOW())");
-
+                
                 // }
                 ?>
 

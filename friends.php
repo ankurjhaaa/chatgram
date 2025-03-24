@@ -92,8 +92,10 @@ ORDER BY last_chat_time DESC
             ?>
             <a href="message.php?user=<?= $user['id'] ?>">
                 <div class="user-item flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer">
-                    <img src="dp/<?php echo empty($user['dp']) ? "defaultUser.webp" : $user['dp']; ?>"
-                        class="w-12 h-12 rounded-full mr-3">
+                    <img src="dp/<?php echo empty($user['dp']) ? 'defaultUser.webp' : htmlspecialchars($user['dp']); ?>"
+                        class="w-12 h-12 rounded-full border object-cover mr-3 shadow-sm" loading="lazy"
+                        onerror="this.src='dp/defaultUser.webp'">
+
                     <div>
                         <h1 class="text-xl font-medium text-gray-800"><?= $user['first_name'] ?>     <?= $user['last_name'] ?>
                         </h1>
@@ -193,7 +195,7 @@ ORDER BY last_chat_time DESC
                 method: "GET",
                 data: { fetch: "users" }, // Ajax में पहचानने के लिए एक parameter भेजा
                 success: function (response) {
-                    let newContent = $(response).find("#userList").html(); 
+                    let newContent = $(response).find("#userList").html();
                     $("#userList").html(newContent); // सिर्फ यूज़र लिस्ट को अपडेट करेगा
                 }
             });

@@ -60,7 +60,7 @@ $email = $_SESSION['email'];
             <!-- Dark Mode -->
             <div class="mb-4 flex items-center">
                 <label for="dark-mode" class="text-gray-600 font-medium mr-4">Dark Mode</label>
-                <input type="checkbox" id="dark-mode" class="form-checkbox text-blue-500 h-5 w-5">
+                <input type="checkbox" id="dark-mode" name="mode" class="form-checkbox text-blue-500 h-5 w-5">
             </div>
 
             <!-- Two Factor Authentication -->
@@ -86,7 +86,7 @@ $email = $_SESSION['email'];
 
                 $chan = mysqli_query($connect, "UPDATE users SET is_public='$pp' where email='$email'");
 
-                
+
                 $call = mysqli_query($connect, "SELECT * FROM users where email='$email'");
                 $privecy = mysqli_fetch_assoc($call);
                 if ($privecy['is_public'] == 0) {

@@ -157,6 +157,11 @@ if (isset($_FILES['profile_pic'])) {
         </div>
     </div>
 
+
+
+
+    
+
 </body>
 
 </html>
