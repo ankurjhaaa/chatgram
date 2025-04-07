@@ -36,6 +36,13 @@ $email = $_SESSION['email'];
                     <a href="about.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-info-circle mr-2"></i> About
                     </a>
+                    <?php
+                        if($email == "akj41731@gmail.com"){
+                            echo "<a href='users.php' class='flex items-center px-4 py-2 text-red-700 hover:bg-gray-100'>
+                        <i class='fas fa-user mr-2'></i></i>Chat User 
+                    </a>";
+                        }
+                    ?>
                     <a href="logout.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </a>

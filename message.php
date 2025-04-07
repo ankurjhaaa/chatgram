@@ -56,7 +56,14 @@ if (isset($_GET['user'])) {
                     <div class="flex-1">
                         <p class="font-semibold text-lg"><?= $user_name['first_name'] ?> <?= $user_name['last_name'] ?>
                         </p>
-                        <p id="typingStatus" class="text-sm text-green-500">Online</p>
+                        <p id="typingStatus" class="text-sm text-green-500"><?php
+                        if ($user_name['is_public'] == 1) {
+                            echo "Public";
+                        } else {
+                            echo "Private";
+                        }
+
+                        ?></p>
                     </div>
                     <!-- <button onclick="refreshPage()" class="text-xl text-gray-700 hover:text-blue-500">
                         <i class="fa-solid fa-rotate-right"></i>
@@ -120,7 +127,7 @@ if (isset($_GET['user'])) {
                     class="flex-1 p-4 space-y-2 flex flex-col-reverse mt-20 mb-16 overflow-y-auto overflow-x-hidden">
                     <!-- Messages will be loaded here via AJAX -->
                 </div>
-                
+
 
 
 
@@ -136,6 +143,11 @@ if (isset($_GET['user'])) {
                     </div>
                 </div>
 
+                <!-- Hidden fields from PHP -->
+                <input type="hidden" id="sender_id" value="<?php echo $sender_id; ?>">
+                <input type="hidden" id="reciver_id" value="<?php echo $reciver_id; ?>">
+
+                <!-- तुम्हारा original form -->
                 <form id="chatForm" method="post" enctype="multipart/form-data">
                     <div
                         class="bg-white p-3 border-t shadow-lg fixed bottom-0 left-0 right-0 md:relative flex items-center gap-2">
@@ -151,6 +163,40 @@ if (isset($_GET['user'])) {
                         </button>
                     </div>
                 </form>
+
+                <!-- JavaScript (Image auto-upload) -->
+                <script>
+                    document.getElementById('imageInput').addEventListener('change', function () {
+                        let file = this.files[0];
+                        if (!file) return;
+
+                        let sender_id = document.getElementById('sender_id').value;
+                        let receiver_id = document.getElementById('reciver_id').value;
+
+                        let formData = new FormData();
+                        formData.append('image', file);
+                        formData.append('sender_id', sender_id);
+                        formData.append('reciver_id', receiver_id);
+
+                        fetch('upload_image.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.text())
+                            .then(data => {
+                                console.log('Upload Success:', data);
+                                alert(data);
+                            })
+                            .catch(error => {
+                                console.error('Upload Error:', error);
+                                alert('Upload failed: ' + error);
+                            });
+                    });
+                </script>
+
+
+
+
                 <?php
                 // Check if a message was submitted
                 // if (isset($_POST['msg'])) {
@@ -170,7 +216,7 @@ if (isset($_GET['user'])) {
 
 
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
+                <!-- <script>
                     $(document).ready(function () {
                         $("#imageInput").change(function (event) {
                             let reader = new FileReader();
@@ -219,7 +265,7 @@ if (isset($_GET['user'])) {
 
                         setInterval(loadMessages, 2000);
                     });
-                </script>
+                </script> -->
 
 
             </div>
